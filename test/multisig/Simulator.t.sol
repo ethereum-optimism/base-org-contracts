@@ -56,4 +56,10 @@ contract SimulatorTest is CommonTest, SafeTestTools {
         assertEq(sso.overrides[3].key, bytes32(uint256(0x6a9609baa168169acaea398c4407efea4be641bb08e21e88806d9836fd9333cc)));
         assertEq(sso.overrides[3].value, bytes32(uint256(0x1)));
     }
+
+    function test_simulator_simulationLink () public view {
+        (string memory url, string memory rawInput) = simulator.simulationLink(address(0xbeef), bytes("test"), address(0xdead), new Simulator.SimulationStateOverride[](0));
+        assertEq(url, "https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new?network=31337&contractAddress=0x000000000000000000000000000000000000bEEF&from=0x000000000000000000000000000000000000dEaD&stateOverrides=%5B%5D&rawFunctionInput=0x74657374");
+        assertEq(rawInput, "");
+    }
 }
