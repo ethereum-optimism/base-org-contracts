@@ -19,7 +19,7 @@ deps: clean-lib checkout-op-commit
 
 .PHONY: test
 test:
-	forge test --ffi -vvv
+	forge test --ffi -vvv --via-ir
 
 .PHONY: clean-lib
 clean-lib:
