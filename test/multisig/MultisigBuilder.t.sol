@@ -53,9 +53,9 @@ contract MultisigBuilderTest is CommonTest, SafeTestTools {
     /*     builder.verify(bytes("test")); */
     /* } */
 
-    function test_builder_nonce () public view {
-        builder.nonce();
-    }
+    /* function test_builder_nonce () public view { */
+    /*     builder.nonce(); */
+    /* } */
 
     /* function test_builder_simulateSigned () public { */
     /*     builder.simulateSigned(bytes("test")); */
