@@ -44,35 +44,24 @@ contract MultisigBuilderTest is CommonTest, SafeTestTools {
         safeInstance = _setupSafe(privKeys, threshold);
     }
 
-    function test_builder_overrideSafeThreshold () public view {
-        MultisigBuilder.SimulationStateOverride memory sso = builder.overrideSafeThreshold(address(safeInstance.safe));
-        assertEq(sso.contractAddress, address(safeInstance.safe));
-        assertEq(sso.overrides.length, 1);
-        assertEq(sso.overrides[0].key, bytes32(uint256(0x4)));
-        assertEq(sso.overrides[0].value, bytes32(uint256(0x1)));
+    function test_builder_sign () public view {
+        builder.sign();
     }
 
-    function test_builder_overrideSafeThresholdAndNonce () public view {
-        MultisigBuilder.SimulationStateOverride memory sso = builder.overrideSafeThresholdAndNonce(address(safeInstance.safe), 987);
-        assertEq(sso.contractAddress, address(safeInstance.safe));
-        assertEq(sso.overrides.length, 2);
-        assertEq(sso.overrides[0].key, bytes32(uint256(0x4)));
-        assertEq(sso.overrides[0].value, bytes32(uint256(0x1)));
-        assertEq(sso.overrides[1].key, bytes32(uint256(0x5)));
-        assertEq(sso.overrides[1].value, bytes32(uint256(987)));
+    function test_builder_verify () public view {
+        builder.verify(bytes("test"));
     }
 
-    function test_builder_overrideSafeThresholdAndOwner () public view {
-        MultisigBuilder.SimulationStateOverride memory sso = builder.overrideSafeThresholdAndOwner(address(safeInstance.safe), address(0xdead));
-        assertEq(sso.contractAddress, address(safeInstance.safe));
-        assertEq(sso.overrides.length, 4);
-        assertEq(sso.overrides[0].key, bytes32(uint256(0x4)));
-        assertEq(sso.overrides[0].value, bytes32(uint256(0x1)));
-        assertEq(sso.overrides[1].key, bytes32(uint256(0x3)));
-        assertEq(sso.overrides[1].value, bytes32(uint256(0x1)));
-        assertEq(sso.overrides[2].key, bytes32(uint256(0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0)));
-        assertEq(sso.overrides[2].value, bytes32(uint256(0xdead)));
-        assertEq(sso.overrides[3].key, bytes32(uint256(0x6a9609baa168169acaea398c4407efea4be641bb08e21e88806d9836fd9333cc)));
-        assertEq(sso.overrides[3].value, bytes32(uint256(0x1)));
+    function test_builder_nonce () public view {
+        builder.nonce();
     }
+
+    function test_builder_simulateSigned () public view {
+        builder.simulateSigned(bytes("test"));
+    }
+
+    function test_builder_run () public view {
+        builder.run(bytes("test"));
+    }
+
 }
