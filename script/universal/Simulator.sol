@@ -127,6 +127,17 @@ abstract contract Simulator is CommonBase {
     }
 
     function logSimulationLink(address _to, bytes memory _data, address _from, SimulationStateOverride[] memory _overrides) public view {
+        (string memory url, string memory rawInput) = simulationLink(_to, _data, _from, _overrides);
+        if (bytes(rawInput).length > 0) {
+            // tenderly's nginx has issues with long URLs, so print the raw input data separately
+            url = string.concat(url, "\nInsert the following hex into the 'Raw input data' field:");
+            console.log(rawInput);
+        } else {
+            console.log(url);
+        }
+    }
+
+    function simulationLink(address _to, bytes memory _data, address _from, SimulationStateOverride[] memory _overrides) public view returns (string memory, string memory){
         (, bytes memory projData) = VM_ADDRESS.staticcall(
             abi.encodeWithSignature("envOr(string,string)", "TENDERLY_PROJECT", "TENDERLY_PROJECT")
         );
@@ -178,13 +189,10 @@ abstract contract Simulator is CommonBase {
             stateOverrides
         );
         if (bytes(str).length + _data.length * 2 > 7980) {
-            // tenderly's nginx has issues with long URLs, so print the raw input data separately
-            str = string.concat(str, "\nInsert the following hex into the 'Raw input data' field:");
-            console.log(str);
-            console.log(vm.toString(_data));
+            // tenderly's nginx has issues with long URLs, so return the raw input data separately
+            return (str, vm.toString(_data));
         } else {
-            str = string.concat(str, "&rawFunctionInput=", vm.toString(_data));
-            console.log(str);
+            return (string.concat(str, "&rawFunctionInput=", vm.toString(_data)), "");
         }
     }
 }
