@@ -191,6 +191,9 @@ library Simulation {
             "&stateOverrides=",
             stateOverrides
         );
+        if (vm.envOr("TENDERLY_GAS", uint256(0)) > 0) {
+            str = string.concat(str, "&gas=", vm.toString(vm.envOr("TENDERLY_GAS", uint256(0))));
+        }
         if (bytes(str).length + _data.length * 2 > 7980) {
             // tenderly's nginx has issues with long URLs, so print the raw input data separately
             str = string.concat(str, "\nInsert the following hex into the 'Raw input data' field:");
