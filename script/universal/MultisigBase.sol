@@ -145,7 +145,7 @@ abstract contract MultisigBase is CommonBase {
 
     function _encodeTransactionData(address _safe, bytes memory _data) internal view returns (bytes memory) {
         return IGnosisSafe(_safe).encodeTransactionData({
-            to: MULTICALL3_ADDRESS,
+            to: _target(_safe),
             value: 0,
             data: _data,
             operation: Enum.Operation.DelegateCall,
@@ -160,23 +160,12 @@ abstract contract MultisigBase is CommonBase {
 
     function _execTransationCalldata(address _safe, bytes memory _data, bytes memory _signatures)
         internal
-        pure
+        view
         returns (bytes memory)
     {
         return abi.encodeCall(
             IGnosisSafe(_safe).execTransaction,
-            (
-                MULTICALL3_ADDRESS,
-                0,
-                _data,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                _signatures
-            )
+            (_target(_safe), 0, _data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), _signatures)
         );
     }
 
@@ -184,11 +173,12 @@ abstract contract MultisigBase is CommonBase {
         internal
         returns (bool)
     {
+        address target = _target(_safe);
         if (_broadcast) {
             vm.broadcast();
         }
         return IGnosisSafe(_safe).execTransaction({
-            to: MULTICALL3_ADDRESS,
+            to: target,
             value: 0,
             data: _data,
             operation: Enum.Operation.DelegateCall,
