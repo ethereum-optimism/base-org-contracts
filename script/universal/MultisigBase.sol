@@ -13,8 +13,19 @@ import {Simulation} from "./Simulation.sol";
 
 abstract contract MultisigBase is CommonBase {
     bytes32 internal constant SAFE_NONCE_SLOT = bytes32(uint256(5));
+    address internal constant MULTI_DELEGATECALL_ADDRESS = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
 
     event DataToSign(bytes);
+
+    function _target(address _safe) internal view returns (address) {
+        // Always parse the env var as a string to avoid issues with boolean values. This lets
+        // us use "true" or "1" as the value to enable the multi-delegatecall.
+        bool useMultiDelegatecall = (vm.envOr("USE_MULTI_DELEGATECALL", false) || vm.envOr("USE_MULTI_DELEGATECALL", uint256(0)) == 1);
+        if (_safe == 0x1Eb2fFc903729a0F03966B917003800b145F56E2 && useMultiDelegatecall) {
+            return MULTI_DELEGATECALL_ADDRESS;
+        }
+        return MULTICALL3_ADDRESS;
+    }
 
     // Subclasses that use nested safes should return `false` to force use of the
     // explicit SAFE_NONCE_{UPPERCASE_SAFE_ADDRESS} env var.
