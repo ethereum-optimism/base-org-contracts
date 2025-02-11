@@ -17,11 +17,13 @@ abstract contract MultisigBase is CommonBase {
 
     event DataToSign(bytes);
 
+    function _ownerSafe() internal view virtual returns (address);
+
     function _target(address _safe) internal view returns (address) {
         // Always parse the env var as a string to avoid issues with boolean values. This lets
         // us use "true" or "1" as the value to enable the multi-delegatecall.
         bool useMultiDelegatecall = (vm.envOr("USE_MULTI_DELEGATECALL", false) || vm.envOr("USE_MULTI_DELEGATECALL", uint256(0)) == 1);
-        if (_safe == 0x1Eb2fFc903729a0F03966B917003800b145F56E2 && useMultiDelegatecall) {
+        if (_safe == _ownerSafe() && useMultiDelegatecall) {
             return MULTI_DELEGATECALL_ADDRESS;
         }
         return MULTICALL3_ADDRESS;

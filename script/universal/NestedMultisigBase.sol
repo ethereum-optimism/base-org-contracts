@@ -19,11 +19,6 @@ abstract contract NestedMultisigBase is MultisigBase {
      */
 
     /**
-     * @notice Returns the nested safe address to execute the final transaction from
-     */
-    function _ownerSafe() internal view virtual returns (address);
-
-    /**
      * @notice Creates the calldata for both signatures (`sign`) and execution (`run`)
      */
     function _buildCalls() internal view virtual returns (IMulticall3.Call3[] memory);
