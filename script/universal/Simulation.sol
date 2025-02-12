@@ -192,7 +192,7 @@ library Simulation {
             stateOverrides
         );
         if (vm.envOr("TENDERLY_GAS", uint256(0)) > 0) {
-            str = string.concat(str, "&gas=", vm.toString(vm.envOr("TENDERLY_GAS", uint256(0))));
+            str = string.concat(str, "&gas=", vm.envString("TENDERLY_GAS"));
         }
         if (bytes(str).length + _data.length * 2 > 7980) {
             // tenderly's nginx has issues with long URLs, so print the raw input data separately
