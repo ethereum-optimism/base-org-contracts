@@ -13,8 +13,21 @@ import {Simulation} from "./Simulation.sol";
 
 abstract contract MultisigBase is CommonBase {
     bytes32 internal constant SAFE_NONCE_SLOT = bytes32(uint256(5));
+    address internal constant MULTI_DELEGATECALL_ADDRESS = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
 
     event DataToSign(bytes);
+
+    function _ownerSafe() internal view virtual returns (address);
+
+    function _target(address _safe) internal view returns (address) {
+        // Always parse the env var as a string to avoid issues with boolean values. This lets
+        // us use "true" or "1" as the value to enable the multi-delegatecall.
+        bool useMultiDelegatecall = (vm.envOr("USE_MULTI_DELEGATECALL", false) || vm.envOr("USE_MULTI_DELEGATECALL", uint256(0)) == 1);
+        if (_safe == _ownerSafe() && useMultiDelegatecall) {
+            return MULTI_DELEGATECALL_ADDRESS;
+        }
+        return MULTICALL3_ADDRESS;
+    }
 
     // Subclasses that use nested safes should return `false` to force use of the
     // explicit SAFE_NONCE_{UPPERCASE_SAFE_ADDRESS} env var.
@@ -134,7 +147,7 @@ abstract contract MultisigBase is CommonBase {
 
     function _encodeTransactionData(address _safe, bytes memory _data) internal view returns (bytes memory) {
         return IGnosisSafe(_safe).encodeTransactionData({
-            to: MULTICALL3_ADDRESS,
+            to: _target(_safe),
             value: 0,
             data: _data,
             operation: Enum.Operation.DelegateCall,
@@ -149,23 +162,12 @@ abstract contract MultisigBase is CommonBase {
 
     function _execTransationCalldata(address _safe, bytes memory _data, bytes memory _signatures)
         internal
-        pure
+        view
         returns (bytes memory)
     {
         return abi.encodeCall(
             IGnosisSafe(_safe).execTransaction,
-            (
-                MULTICALL3_ADDRESS,
-                0,
-                _data,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                _signatures
-            )
+            (_target(_safe), 0, _data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), _signatures)
         );
     }
 
@@ -173,11 +175,12 @@ abstract contract MultisigBase is CommonBase {
         internal
         returns (bool)
     {
+        address target = _target(_safe);
         if (_broadcast) {
             vm.broadcast();
         }
         return IGnosisSafe(_safe).execTransaction({
-            to: MULTICALL3_ADDRESS,
+            to: target,
             value: 0,
             data: _data,
             operation: Enum.Operation.DelegateCall,
