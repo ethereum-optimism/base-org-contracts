@@ -13,7 +13,7 @@ import {Simulation} from "./Simulation.sol";
 
 abstract contract MultisigBase is CommonBase {
     bytes32 internal constant SAFE_NONCE_SLOT = bytes32(uint256(5));
-    address internal constant MULTI_DELEGATECALL_ADDRESS = 0x93dc480940585d9961bfceab58124ffd3d60f76a;
+    address internal constant MULTI_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 
     event DataToSign(bytes);
 
